@@ -1,0 +1,24 @@
+name: zava-storefront
+version: 0.1.0
+description: >-
+  Zava's customer-facing storefront. Next.js (App Router) + Postgres,
+  deployed to Azure. Pins zava-agent-config for shared skills, instructions,
+  personas, and the apm-audit CI gate.
+author: Zava Engineering
+license: UNLICENSED
+keywords:
+  - zava
+  - storefront
+  - nextjs
+  - demo
+
+dependencies:
+  apm:
+    - DevExpGbb/zava-agent-config@^1.0.0
+  mcp: []
+
+includes: auto
+
+scripts:
+  audit: apm audit --policy ./apm-policy.yaml
+  audit-ci: apm audit --ci --policy ./apm-policy.yaml
