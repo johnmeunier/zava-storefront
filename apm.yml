@@ -22,5 +22,9 @@ dependencies:
   - danielmeppiel/genesis
   mcp: []
 includes: auto
+# sdlc-driver co-dependencies (local siblings — auto-included above):
+#   - .agents/skills/build-pr      (BUILD phase of sdlc-driver loop)
+#   - .agents/skills/pr-guidelines-review  (REVIEW phase of sdlc-driver loop)
+# All three skills deploy together via `apm install`.
 compilation:
   source_attribution: true
