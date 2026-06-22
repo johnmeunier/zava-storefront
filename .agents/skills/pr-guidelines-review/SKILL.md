@@ -8,8 +8,9 @@ description: >
   "audit this change", or any request to assess a PR or diff against team
   standards before merging. Produces a structured report: verdict (MERGE or
   REQUEST CHANGES), rationale, and findings per dimension ordered by
-  criticality. Out of scope: posting GitHub review comments or status checks,
-  proposing code fixes, pre-push staged-change review (use panel-review for that).
+  criticality, then posts the report as a public comment on the PR. Out of scope:
+  approving or merging via the GitHub review API, proposing code fixes,
+  pre-push staged-change review (use panel-review for that).
 ---
 
 # pr-guidelines-review
@@ -50,14 +51,22 @@ runs against.
 
 Read `assets/diff-strategy.md` now.
 
+Determine the repo target from context:
+- If the user supplied a full GitHub URL (`github.com/<owner>/<repo>/pull/<N>`),
+  extract `REPO=<owner>/<repo>` and `PR_NUMBER=<N>`.
+- If the user supplied only a number, use the current repo (`REPO` = omit flag,
+  `gh` will infer from `git remote`).
+
 Write to session plan:
 
 ```
 ## PR Guidelines Review — Goal (B8 ATTENTION ANCHOR)
 PR: #<N>
+REPO: <owner/repo or "(current repo)">
 Goal: review against security, architecture, and documentation guidelines.
 Verdict format: MERGE or REQUEST CHANGES, rationale, findings per dimension.
-This session NEVER posts to GitHub, NEVER approves, NEVER modifies code.
+Post report as public comment on the PR after synthesis.
+This session NEVER approves, NEVER merges, NEVER modifies code.
 ```
 
 ## Step 2 — Probe guideline files (S7 tool bridge — FACT reads)
@@ -74,8 +83,8 @@ the user to supply the correct path. Do not proceed with a missing guideline.
 ## Step 3 — Fetch PR metadata + file manifest (S7 tool bridge)
 
 ```bash
-gh pr view <PR_NUMBER> --json title,body,author,additions,deletions,files
-gh pr diff <PR_NUMBER> --name-only
+gh pr view <PR_NUMBER> [--repo <REPO>] --json title,body,author,additions,deletions,files
+gh pr diff <PR_NUMBER> [--repo <REPO>] --name-only
 ```
 
 Write to session plan:
@@ -181,21 +190,28 @@ VERDICT_TEMPLATE: <full content of assets/verdict-template.md>
 Emit the final review report following the template EXACTLY.
 ```
 
-## Step 7 — Emit report
+## Step 7 — Post report to GitHub and echo to conversation (S7 write)
 
-Output the synthesizer's report verbatim. No wrapper text, no preamble.
-The report starts at "## PR Guidelines Review".
+Validate the synthesizer output first:
+- If it does not start with `## PR Guidelines Review` or lacks a `**Verdict:**`
+  line: re-run the synthesizer once with a reminder to follow the template.
 
-If the synthesizer's output does not start with "## PR Guidelines Review"
-or does not contain a "**Verdict:**" line: re-run the synthesizer once
-with a reminder to follow the template exactly.
+Once the report is valid, post it as a public comment on the PR (S7 tool bridge
+— CONSEQUENTIAL SIDE EFFECT):
+
+```bash
+gh pr comment <PR_NUMBER> [--repo <REPO>] --body '<REPORT>'
+```
+
+Then echo the full report verbatim in the conversation so the user sees it
+without opening GitHub.
 
 ---
 
 ## Hard rules
 
-- **Never post to GitHub.** Never call `gh pr review`, `gh pr comment`,
-  or any GitHub write API. This skill is read-only.
+- **One comment per run.** Post exactly one `gh pr comment` at Step 7.
+  Never call `gh pr review` (approve/request-changes API) and never auto-merge.
 - **Never modify code.** Never run `git add`, `git commit`, or any file edit.
 - **Guideline files are ground truth.** If the PR violates a guideline,
   report it regardless of apparent intent.
