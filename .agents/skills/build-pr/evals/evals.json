@@ -1,0 +1,97 @@
+{
+  "skill": "build-pr",
+  "version": "1.0.0",
+  "content_evals": [
+    {
+      "id": "ce-1-feature-brief",
+      "description": "Feature brief: new API endpoint following project standards",
+      "prompt": "Implement this work item: add a GET /api/products/featured endpoint that returns the top 3 products by view count. Follow all project standards.",
+      "with_skill_expected": [
+        "Reads guideline files before writing code",
+        "plan.md written with scope check before first commit",
+        "Branch created with descriptive name",
+        "SQL query is parameterised (per secure-coding-base)",
+        "npm run lint passes",
+        "npm test passes",
+        "PR opened with structured description: summary, changes, testing ✅",
+        "Out-of-scope section absent or explicitly empty"
+      ],
+      "without_skill_expected": [
+        "May skip reading guidelines",
+        "May miss SQL parameterisation requirement from secure-coding-base",
+        "May open PR without running checks",
+        "PR description likely unstructured"
+      ]
+    },
+    {
+      "id": "ce-2-review-findings",
+      "description": "Review findings: two items, one potentially out of scope",
+      "prompt": "Here are the review findings to address: [1] Missing input validation on the product quantity field in the cart API [2] Cart total rounds incorrectly for non-USD currencies. Please fix them and raise a PR.",
+      "with_skill_expected": [
+        "Classifies input as review-findings",
+        "Scopes item [1] as in scope (direct validation fix)",
+        "Flags item [2] as potentially out of scope if currency handling requires a larger redesign",
+        "Implements [1] with validated input per secure-coding-base",
+        "Runs lint and tests before opening PR",
+        "PR description includes out-of-scope note for [2] if flagged"
+      ],
+      "without_skill_expected": [
+        "May not classify input type",
+        "May implement both without scoping",
+        "May open PR without running checks",
+        "May silently expand scope on [2]"
+      ]
+    },
+    {
+      "id": "ce-3-scope-creep-resistance",
+      "description": "Work item with embedded scope creep",
+      "prompt": "The checkout button is broken — clicking it on an empty cart throws a 500 error. While you're at it, also refactor the entire cart module to use the new state management library. Open a PR.",
+      "with_skill_expected": [
+        "Implements the checkout 500-error fix (in scope)",
+        "Notes the cart refactor as OUT OF SCOPE in plan.md",
+        "Does NOT touch the cart module beyond the direct bug fix",
+        "PR description includes ⚠️ Out of scope section for the refactor",
+        "Lint and tests pass before PR is opened"
+      ],
+      "without_skill_expected": [
+        "Likely implements both the fix and the refactor",
+        "PR becomes large with mixed scope",
+        "Scope creep goes undetected and unannounced"
+      ]
+    }
+  ],
+  "trigger_evals": {
+    "should_trigger": {
+      "train": [
+        "Implement the checkout flow described in this ticket: [ticket text]",
+        "Here are the review comments from the PR, please address them and raise a new PR",
+        "Build this feature: add a product search endpoint to the API",
+        "Create a PR for this change: update the footer copyright year to 2026",
+        "Address the feedback from code review and resubmit",
+        "Here's the JIRA ticket description, please implement it and open a PR",
+        "Fix these findings from the security scan and raise a pull request",
+        "I need a PR that implements this user story: as a user I can filter products by category"
+      ],
+      "val": [
+        "Build a wishlist feature and submit it as a PR",
+        "These are the reviewer's comments, please fix them and create a pull request",
+        "Implement this bug fix and raise a PR: clicking checkout on empty cart throws 500",
+        "Turn this design doc into code and open a PR for review"
+      ]
+    },
+    "should_not_trigger": {
+      "train": [
+        "Review this PR for security issues",
+        "Write a postmortem for the checkout outage",
+        "What does the current checkout flow do?",
+        "Should we add search to the storefront?",
+        "Run the test suite and tell me what's failing"
+      ],
+      "val": [
+        "Merge this PR for me",
+        "Create a GitHub issue for this bug",
+        "Show me the diff of the last commit"
+      ]
+    }
+  }
+}
